@@ -1,3 +1,5 @@
 import json_parser as jp
 
-print(jp.parse('bentley.json'))
+data = jp.parse('bentley.json', 'milage')
+print(data)
+

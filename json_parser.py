@@ -6,6 +6,7 @@ def parse(path, field):
     # read the json file
     adverts = json.load(open(path))
     try:
+        # create a dictionary from the two lists of keys and values
         keys = [advert['uid'] for advert in adverts]
         values = [advert['data'][field] for advert in adverts]
         return dict(zip(keys, values))
