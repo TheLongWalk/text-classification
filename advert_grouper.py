@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # parse program arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', type=str, help="Input json file path")
-    parser.add_argument('--target', type=str, default='paint' help="Target variable to group the adverts")
+    parser.add_argument('--target', type=str, default='paint', help="Target variable to group the adverts")
     args = parser.parse_args()
 
     # parse advert labels group the adverts by the specified target variable
