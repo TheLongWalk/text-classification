@@ -5,10 +5,13 @@ import json_parser as jp
 def group(labels):
     groups = {}
     for advert, label in labels.items():
-        if label == '0':
+        if label == 'damage':
+            label = 'wasted'
+        elif label == '0':
             label = 'clean'
         elif label != 'unknown':
-            label = 'damaged'
+            label = 'repaired'
+
         if label not in groups:
             groups[label] = [advert]
         else:

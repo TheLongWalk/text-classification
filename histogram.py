@@ -6,7 +6,7 @@ import json_parser as jp
 import argparse
 import json
 
-LABELS = ['damaged', 'unknown', 'clean']
+LABELS = ['wasted', 'repaired', 'unknown', 'clean']
 
 # creates a histogram of word counts from a list of descriptions
 def hist(descriptionList):
@@ -52,20 +52,20 @@ if __name__ == '__main__':
     preprocessor.preprocess(advertDescriptionMap)
     histogram = histLabels(advertDescriptionMap, labelAdvertMap)
 
-    # print histogram
-    print('{0: <25}'.format(""), end="")
-    for label in LABELS:
-        print('{0: <10}'.format(label), end="")
-    print()
+    # replace null values with zero
     for word, labelCountMap in histogram.items():
-        print('{0: <25}'.format(word), end="")
         for label in LABELS:
             labelCountMap[label] = labelCountMap[label] if labelCountMap[label] != None else 0
-            print('{0: <10}'.format(labelCountMap[label]), end="")
-        print()
         histogram[word] = labelCountMap
 
-    # write the histogram to a json file
+    # print histogram
+    for word, labelCountMap in histogram.items():
+        print('{0: <25}'.format("\n" + word), end="")
+        for label in LABELS:
+            print('{0: >4}'.format(labelCountMap[label]), end="")
+            print('{0: <10}'.format(" " + label), end="")
+
+    # write histogram to a json file
     dotPos = args.labelpath.find('.')
     outFileName = args.labelpath[:dotPos] + "-histogram.json"
     with open(outFileName, 'w') as fp:
