@@ -23,14 +23,12 @@ def histLabels(advertDescriptionMap, labelAdvertMap):
     for label, adverts in labelAdvertMap.items():
         for advert in adverts:
             for word in advertDescriptionMap[advert]:
-                if word in histogram:
-                    if histogram[word][label] == None:
-                        histogram[word][label] = 1
-                    else:
-                        histogram[word][label] += 1
-                else:
-                    histogram[word] = dict.fromkeys(list(labelAdvertMap.keys()))
+                if word not in histogram:
+                    histogram[word] = dict.fromkeys(labelAdvertMap.keys())
+                if histogram[word][label] == None:
                     histogram[word][label] = 1
+                else:
+                    histogram[word][label] += 1
     return histogram
 
 if __name__ == '__main__':
