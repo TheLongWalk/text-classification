@@ -1,16 +1,18 @@
 from collections import OrderedDict
 from operator import itemgetter 
 import preprocessor
-import advert_grouper
-import json_parser
+import advert_grouper as ag
+import json_parser as jp
 import argparse
 import json
 
-# creates a histogram of word counts from an advert-description map
-def hist(descriptions):
+LABELS = ['damaged', 'unknown', 'clean']
+
+# creates a histogram of word counts from a list of descriptions
+def hist(descriptionList):
     histogram = {}
-    for advert in descriptions.values():
-        for word in advert:
+    for description in descriptionList:
+        for word in description:
             if word in histogram:
                 histogram[word] += 1
             else:
@@ -18,19 +20,20 @@ def hist(descriptions):
     return histogram
 
 # creates a histogram for each label
-def groupHist(descriptions, groups):
-    histograms = {}
-    for label, adverts in groups.items():
-        histogram = {}
+def histLabels(advertDescriptionMap, labelAdvertMap):
+    histogram = {}
+    for label, adverts in labelAdvertMap.items():
         for advert in adverts:
-            description = descriptions[advert]
-            for word in description:
+            for word in advertDescriptionMap[advert]:
                 if word in histogram:
-                    histogram[word] += 1
+                    if histogram[word][label] == None:
+                        histogram[word][label] = 1
+                    else:
+                        histogram[word][label] += 1
                 else:
-                    histogram[word] = 1
-        histograms[label] = histogram
-    return histograms
+                    histogram[word] = dict.fromkeys(LABELS)
+                    histogram[word][label] = 1
+    return histogram
 
 if __name__ == '__main__':
     # parse program arguments
@@ -41,21 +44,29 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # parse and preprocess advert descriptions
-    descriptions = json_parser.parse(args.datapath, 'description', 'data')
-    labels = json_parser.parse(args.labelpath, args.target, 'field')
-    groups = advert_grouper.group(labels)
+    advertDescriptionMap = jp.parse(args.datapath, 'description', 'data')
+    advertLabelMap = jp.parse(args.labelpath, args.target, 'field')
+    labelAdvertMap = ag.group(advertLabelMap)
 
     # create histograms for each label
-    preprocessor.preprocess(descriptions)
-    histograms = groupHist(descriptions, groups)
+    preprocessor.preprocess(advertDescriptionMap)
+    histogram = histLabels(advertDescriptionMap, labelAdvertMap)
 
-    # sort the histograms in descending order
-    for label, histogram in histograms.items():
-        histograms[label] = OrderedDict(sorted(histogram.items(), key=itemgetter(1), reverse = True))
+    # print histogram
+    print('{0: <25}'.format(""), end="")
+    for label in LABELS:
+        print('{0: <10}'.format(label), end="")
+    print()
+    for word, labelCountMap in histogram.items():
+        print('{0: <25}'.format(word), end="")
+        for label in LABELS:
+            labelCountMap[label] = labelCountMap[label] if labelCountMap[label] != None else 0
+            print('{0: <10}'.format(labelCountMap[label]), end="")
+        print()
+        histogram[word] = labelCountMap
 
-    # write the sorted histograms to a json file
-    for label, histogram in histograms.items():
-        dotPos = args.datapath.find('.')
-        histogramFileName = args.datapath[:dotPos] + "-" + label + "-histogram.json"
-        with open(histogramFileName, 'w') as fp:
-            json.dump(histogram, fp)
+    # write the histogram to a json file
+    dotPos = args.labelpath.find('.')
+    outFileName = args.labelpath[:dotPos] + "-histogram.json"
+    with open(outFileName, 'w') as fp:
+        json.dump(histogram, fp)
