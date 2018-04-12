@@ -6,8 +6,6 @@ import json_parser as jp
 import argparse
 import json
 
-LABELS = ['wasted', 'repaired', 'unknown', 'clean']
-
 # creates a histogram of word counts from a list of descriptions
 def hist(descriptionList):
     histogram = {}
@@ -31,7 +29,7 @@ def histLabels(advertDescriptionMap, labelAdvertMap):
                     else:
                         histogram[word][label] += 1
                 else:
-                    histogram[word] = dict.fromkeys(LABELS)
+                    histogram[word] = dict.fromkeys(list(labelAdvertMap.keys()))
                     histogram[word][label] = 1
     return histogram
 
@@ -47,6 +45,7 @@ if __name__ == '__main__':
     advertDescriptionMap = jp.parse(args.datapath, 'description', 'data')
     advertLabelMap = jp.parse(args.labelpath, args.target, 'field')
     labelAdvertMap = ag.group(advertLabelMap)
+    labels = list(labelAdvertMap.keys())
 
     # create histograms for each label
     preprocessor.preprocess(advertDescriptionMap)
@@ -54,14 +53,14 @@ if __name__ == '__main__':
 
     # replace null values with zero
     for word, labelCountMap in histogram.items():
-        for label in LABELS:
+        for label in labels:
             labelCountMap[label] = labelCountMap[label] if labelCountMap[label] != None else 0
         histogram[word] = labelCountMap
 
     # print histogram
     for word, labelCountMap in histogram.items():
         print('{0: <25}'.format("\n" + word), end="")
-        for label in LABELS:
+        for label in labels:
             print('{0: >4}'.format(labelCountMap[label]), end="")
             print('{0: <10}'.format(" " + label), end="")
 
