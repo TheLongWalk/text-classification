@@ -12,7 +12,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # parse and preprocess advert descriptions
-    descriptions = json_parser.parse(args.path, 'description')
+    descriptions = json_parser.parse(args.path, 'description', 'data')
     preprocessor.preprocess(descriptions)
 
     # populate the histogram of word counts

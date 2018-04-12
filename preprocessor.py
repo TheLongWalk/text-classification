@@ -2,6 +2,7 @@ import json_parser as jp
 import argparse
 import re
 
+# preprocesses and overwrites description strings from a map where the keys are advert numbers 
 def preprocess(descriptions):
     for key, text in descriptions.items():
         # convert any uppercase letters to lowercase and normalize Turkish letters
@@ -34,6 +35,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # parse and preprocess advert descriptions
-    descriptions = jp.parse(args.path, 'description')
+    descriptions = jp.parse(args.path, 'description', 'data')
     preprocess(descriptions)
     print(descriptions)
