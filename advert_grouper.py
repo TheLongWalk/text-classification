@@ -1,7 +1,7 @@
 import argparse
 import json_parser as jp
 
-# cretes a dictionary with 3 labels (keys) where the values are the corresponding list of adverts
+# maps each label to the corresponding list of advert numbers
 def group(labels):
     groups = {}
     for advert, label in labels.items():
@@ -11,7 +11,6 @@ def group(labels):
             label = 'clean'
         elif label != 'unknown':
             label = 'repaired'
-
         if label not in groups:
             groups[label] = [advert]
         else:
