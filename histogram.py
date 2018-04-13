@@ -20,16 +20,31 @@ def hist(descriptionList):
 # creates a histogram for each label
 def histLabels(advertDescriptionMap, labelAdvertMap):
     histogram = {}
+    labels = list(labelAdvertMap.keys())
     for label, adverts in labelAdvertMap.items():
         for advert in adverts:
             for word in advertDescriptionMap[advert]:
                 if word not in histogram:
-                    histogram[word] = dict.fromkeys(labelAdvertMap.keys())
+                    histogram[word] = dict.fromkeys(labels)
                 if histogram[word][label] == None:
                     histogram[word][label] = 1
                 else:
                     histogram[word][label] += 1
+    # replace null values with zeros
+    for word, labelCountMap in histogram.items():
+        for label in labels:
+            labelCountMap[label] = labelCountMap[label] if labelCountMap[label] != None else 0
+        histogram[word] = labelCountMap
     return histogram
+
+# prints the labeled histogram
+def printHist(histogram):
+    for word, labelCountMap in histogram.items():
+        print('{0: <25}'.format("\n" + word), end="")
+        for label in labelCountMap.keys():
+            print('{0: >4}'.format(labelCountMap[label]), end="")
+            print('{0: <10}'.format(" " + label), end="")
+
 
 if __name__ == '__main__':
     # parse program arguments
@@ -43,24 +58,17 @@ if __name__ == '__main__':
     advertDescriptionMap = jp.parse(args.datapath, 'description', 'data')
     advertLabelMap = jp.parse(args.labelpath, args.target, 'field')
     labelAdvertMap = ag.group(advertLabelMap)
-    labels = list(labelAdvertMap.keys())
+
+    advertsPerLabel = {}
+    for label, adverts in labelAdvertMap.items():
+        advertsPerLabel[label] = len(adverts)
+    print(advertsPerLabel)
+    input()
 
     # create histograms for each label
     preprocessor.preprocess(advertDescriptionMap)
     histogram = histLabels(advertDescriptionMap, labelAdvertMap)
-
-    # replace null values with zero
-    for word, labelCountMap in histogram.items():
-        for label in labels:
-            labelCountMap[label] = labelCountMap[label] if labelCountMap[label] != None else 0
-        histogram[word] = labelCountMap
-
-    # print histogram
-    for word, labelCountMap in histogram.items():
-        print('{0: <25}'.format("\n" + word), end="")
-        for label in labels:
-            print('{0: >4}'.format(labelCountMap[label]), end="")
-            print('{0: <10}'.format(" " + label), end="")
+    printHist(histogram)
 
     # write histogram to a json file
     dotPos = args.labelpath.find('.')
